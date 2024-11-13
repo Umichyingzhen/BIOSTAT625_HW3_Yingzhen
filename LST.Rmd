@@ -1,0 +1,165 @@
+---
+title: "Biostat625_Rpackage"
+author: "Yingzhen Wang"
+date: "2024-11-13"
+output: html_document
+---
+
+```{r}
+RSE <- function(Y, X, data) {
+  Y <- data[[Y]]
+  X <- as.matrix(data[X])
+  X <- cbind(1, X)  # Add intercept
+  beta <- solve(t(X) %*% X) %*% t(X) %*% Y  # Regression coefficients
+  residuals <- Y - X %*% beta
+  rse <- sqrt(sum(residuals^2) / (nrow(X) - ncol(X)))
+  return(rse)
+}
+```
+
+```{r}
+Rsquared <- function(Y, X, data) {
+  Y <- data[[Y]]
+  X <- as.matrix(data[X])
+  X <- cbind(1, X)
+  beta <- solve(t(X) %*% X) %*% t(X) %*% Y
+  fitted_values <- X %*% beta
+  ss_total <- sum((Y - mean(Y))^2)
+  ss_residual <- sum((Y - fitted_values)^2)
+  rsquared <- 1 - (ss_residual / ss_total)
+  return(rsquared)
+}
+```
+
+
+```{r}
+ADJRS <- function(Y, X, data) {
+  rsquared <- Rsquared(Y, X, data)
+  n <- nrow(data)
+  p <- length(X) + 1  # Including the intercept
+  adj_rsquared <- 1 - ((1 - rsquared) * (n - 1) / (n - p))
+  return(adj_rsquared)
+}
+```
+
+
+```{r}
+Ftest <- function(Y, X, data) {
+  Y <- data[[Y]]
+  X <- as.matrix(data[X])
+  X <- cbind(1, X)
+  beta <- solve(t(X) %*% X) %*% t(X) %*% Y
+  fitted_values <- X %*% beta
+  ss_total <- sum((Y - mean(Y))^2)
+  ss_residual <- sum((Y - fitted_values)^2)
+  df1 <- length(X)  # Degrees of freedom for regression
+  df2 <- nrow(data) - length(X) - 1  # Degrees of freedom for error
+  f_stat <- ((ss_total - ss_residual) / df1) / (ss_residual / df2)
+  p_value <- pf(f_stat, df1, df2, lower.tail = FALSE)
+  return(list(f_stat = f_stat, p_value = p_value, df1 = df1, df2 = df2))
+}
+
+```
+
+
+```{r}
+Ttest <- function(Y, X, data) {
+  Y <- data[[Y]]
+  X <- as.matrix(data[X])
+  X <- cbind(1, X)
+  beta <- solve(t(X) %*% X) %*% t(X) %*% Y
+  residuals <- Y - X %*% beta
+  sigma2 <- sum(residuals^2) / (nrow(X) - ncol(X))
+  var_beta <- sigma2 * diag(solve(t(X) %*% X))
+  se <- sqrt(var_beta)
+  t_values <- beta / se
+  p_values <- 2 * pt(-abs(t_values), df = nrow(X) - ncol(X))
+  return(data.frame(Estimate = beta, SE = se, t_value = t_values, p_value = p_values))
+}
+```
+
+
+```{r}
+#' Residual Standard Error
+#'
+#' Calculates the residual standard error for a multiple linear regression model.
+#'
+#' @param Y A character string specifying the name of the dependent variable in the data.
+#' @param X A character vector of predictor variable names.
+#' @param data A data frame containing the variables.
+#'
+#' @return The residual standard error of the model on n - p degrees of freedom.
+#' @examples
+#' data <- data.frame(Y = rnorm(100), X1 = rnorm(100), X2 = rnorm(100))
+#' RSE("Y", c("X1", "X2"), data)
+#' @export
+RSE <- function(Y, X, data) { ... }
+```
+
+```{r}
+#' Multiple R-squared
+#'
+#' Calculates the multiple R-squared value for a multiple linear regression model.
+#'
+#' @param Y A character string specifying the name of the dependent variable in the data.
+#' @param X A character vector of predictor variable names.
+#' @param data A data frame containing the variables.
+#'
+#' @return The multiple R-squared value of the model.
+#' @examples
+#' data <- data.frame(Y = rnorm(100), X1 = rnorm(100), X2 = rnorm(100))
+#' Rsquared("Y", c("X1", "X2"), data)
+#' @export
+Rsquared <- function(Y, X, data) { ... }
+```
+
+```{r}
+#' Adjusted R-squared
+#'
+#' Calculates the adjusted R-squared value for a multiple linear regression model.
+#'
+#' @param Y A character string specifying the name of the dependent variable in the data.
+#' @param X A character vector of predictor variable names.
+#' @param data A data frame containing the variables.
+#'
+#' @return The adjusted R-squared value of the model.
+#' @examples
+#' data <- data.frame(Y = rnorm(100), X1 = rnorm(100), X2 = rnorm(100))
+#' ADJRS("Y", c("X1", "X2"), data)
+#' @export
+ADJRS <- function(Y, X, data) { ... }
+```
+
+```{r}
+#' F-test for Linear Model
+#'
+#' Performs an F-test to assess the overall significance of all predictors in a multiple linear regression model.
+#'
+#' @param Y A character string specifying the name of the dependent variable in the data.
+#' @param X A character vector of predictor variable names.
+#' @param data A data frame containing the variables.
+#'
+#' @return A list containing the F-statistic, degrees of freedom (df1 and df2), and the p-value of the test.
+#' @examples
+#' data <- data.frame(Y = rnorm(100), X1 = rnorm(100), X2 = rnorm(100))
+#' Ftest("Y", c("X1", "X2"), data)
+#' @export
+Ftest <- function(Y, X, data) { ... }
+```
+
+```{r}
+#' T-test for Each Predictor
+#'
+#' Performs a t-test for each predictor in the multiple linear regression model, adjusting for other predictors.
+#'
+#' @param Y A character string specifying the name of the dependent variable in the data.
+#' @param X A character vector of predictor variable names.
+#' @param data A data frame containing the variables.
+#'
+#' @return A data frame with the effect estimates, standard errors, t-values, and p-values for each predictor.
+#' @examples
+#' data <- data.frame(Y = rnorm(100), X1 = rnorm(100), X2 = rnorm(100))
+#' Ttest("Y", c("X1", "X2"), data)
+#' @export
+Ttest <- function(Y, X, data) { ... }
+```
