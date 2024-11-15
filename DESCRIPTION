@@ -1,0 +1,17 @@
+Package: MLST
+Type: Package
+Title: Multiple Linear Model Statistics and Tests
+Version: 1.0
+Date: 2024-11-14
+Author: Yingzhen Wang
+Maintainer: Yingzhen Wang <yingzhen@umich.edu>
+Description: Gets the Statistics and performs tests of a linear model with dependent variable Y and the matrix of predictors of interest from the dataset
+License: GPL-2
+RoxygenNote: 7.3.2
+Encoding: UTF-8
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3

@@ -1,0 +1,214 @@
+---
+title: "Biostat625_Rpackage"
+author: "Yingzhen Wang"
+date: "2024-11-13"
+output: html_document
+---
+
+
+
+```{r}
+RSE <- function(Y, Predictors, data) {
+  X <- as.matrix(Predictors)
+  X <- cbind(1, X)  # Add intercept
+  beta <- solve(t(X) %*% X) %*% t(X) %*% Y  # Regression coefficients
+  residuals <- Y - X %*% beta
+  rse <- sqrt(sum(residuals^2) / (nrow(X) - ncol(X)))
+  return(rse)
+}
+```
+
+
+```{r}
+Rsquared <- function(Y, Predictors, data) {
+  X <- as.matrix(Predictors)
+  X <- cbind(1, X)  # Add intercept
+  beta <- solve(t(X) %*% X) %*% t(X) %*% Y
+  fitted_values <- X %*% beta
+  ss_total <- sum((Y - mean(Y))^2)
+  ss_residual <- sum((Y - fitted_values)^2)
+  rsquared <- 1 - (ss_residual / ss_total)
+  return(rsquared)
+}
+```
+
+
+```{r}
+ADJRS <- function(Y, Predictors, data) {
+  X <- as.matrix(Predictors)
+  X <- cbind(1, X)  # Add intercept
+  beta <- solve(t(X) %*% X) %*% t(X) %*% Y
+  fitted_values <- X %*% beta
+  ss_total <- sum((Y - mean(Y))^2)
+  ss_residual <- sum((Y - fitted_values)^2)
+  n <- nrow(data)
+  p <- ncol(X)
+  adj_rsquared <- 1 - ((ss_residual / (n - p)) / (ss_total/(n-1)))
+  return(adj_rsquared)
+}
+```
+
+
+```{r}
+Ftest <- function(Y, Predictors, data) {
+  X <- as.matrix(Predictors)
+  X <- cbind(1, X)  # Add intercept
+  beta <- solve(t(X) %*% X) %*% t(X) %*% Y
+  fitted_values <- X %*% beta
+  ss_total <- sum((Y - mean(Y))^2)
+  ss_residual <- sum((Y - fitted_values)^2)
+  df1 <- ncol(X)-1  # Degrees of freedom for regression
+  df2 <- nrow(data) - ncol(X)  # Degrees of freedom for error
+  f_stat <- ((ss_total - ss_residual) / df1) / (ss_residual / df2)
+  p_value <- pf(f_stat, df1, df2, lower.tail = FALSE)
+  return(data.frame(f_stat = f_stat, p_value = p_value, df1 = df1, df2 = df2))
+}
+```
+
+
+```{r}
+Ttest <- function(Y, Predictors, data) {
+  X <- as.matrix(Predictors)
+  X <- cbind(1, X)  # Add intercept
+  beta <- solve(t(X) %*% X) %*% t(X) %*% Y
+  residuals <- Y - X %*% beta
+  sigma2 <- sum(residuals^2) / (nrow(data) - ncol(X))
+  var_beta <- sigma2 * diag(solve(t(X) %*% X))
+  se <- sqrt(var_beta)
+  t_values <- beta / se
+  p_values <- 2 * pt(-abs(t_values), df = nrow(data) - ncol(X))
+  result <- data.frame("Estimate" = beta, "Std. Error" = se, "t value" = t_values, "Pr(>|t|)" = p_values)
+  colnames(result) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
+  rownames(result) <- c("(Intercept)", colnames(Predictors))
+  return(as.matrix(result))
+}
+```
+
+
+
+
+```{r}
+# The comparisons against the original R function on a simulated dataset
+set.seed(123)
+simulate_data <- data.frame(
+  normal = rnorm(100, mean = 10, sd = 5),
+  X1 = rnorm(100),
+  X2 = rnorm(100),
+  X3 = rnorm(100)
+)
+
+Predictors <- as.matrix(simulate_data[, c("X1", "X2")])
+Y <- as.matrix(simulate_data[, "normal"])
+```
+
+
+```{r}
+RSE_result <- RSE(Y, Predictors, simulate_data)
+
+Rsquared_result <- Rsquared(Y, Predictors, simulate_data)
+
+ADJRS_result <- ADJRS(Y, Predictors, simulate_data)
+
+Ftest_result <- Ftest(Y, Predictors, simulate_data)
+
+Ttest_result <- Ttest(Y, Predictors, simulate_data)
+
+# Fit the model with lm()
+lm_model <- lm(normal ~ X1 + X2, simulate_data)
+
+# Comparison of residual standard error
+all.equal(RSE_result, summary(lm_model)$sigma)
+
+# Comparison of R-squared
+all.equal(Rsquared_result, summary(lm_model)$r.squared)
+
+# Comparison of Adjusted R-squared
+all.equal(ADJRS_result, summary(lm_model)$adj.r.squared)
+
+# F-test comparison
+all.equal(Ftest_result$f_stat, summary(lm_model)$fstatistic[1], check.attributes = FALSE)
+all.equal(Ftest_result$p_value, pf(summary(lm_model)$fstatistic[1], summary(lm_model)$fstatistic[2], summary(lm_model)$fstatistic[3], lower.tail = FALSE), check.attributes = FALSE)
+all.equal(Ftest_result$df1, summary(lm_model)$fstatistic[2], check.attributes = FALSE)
+all.equal(Ftest_result$df2, summary(lm_model)$fstatistic[3], check.attributes = FALSE)
+
+# T-test comparison
+all.equal(Ttest_result[,1], summary(lm_model)$coefficients[, 1], check.attributes = FALSE)
+all.equal(Ttest_result[,2], summary(lm_model)$coefficients[, 2], check.attributes = FALSE)
+all.equal(Ttest_result[,3], summary(lm_model)$coefficients[, 3], check.attributes = FALSE)
+all.equal(Ttest_result[,4], summary(lm_model)$coefficients[, 4], check.attributes = FALSE)
+Ttest_result
+```
+
+
+
+```{r}
+bench::mark(
+  RSE_result,
+  summary(lm_model)$sigma
+)
+
+# Benchmarking custom Rsquared function vs. lm()
+bench::mark(
+  Rsquared_result,
+  summary(lm_model)$r.squared
+)
+
+# Benchmarking custom ADJRS function vs. lm()
+bench::mark(
+  ADJRS_result,
+  summary(lm_model)$adj.r.squared
+)
+
+# Benchmarking custom Ftest function vs. lm()
+bench::mark(
+  Ftest_result$f_stat,
+  summary(lm_model)$fstatistic[1],
+  check = FALSE
+)
+
+bench::mark(
+  Ftest_result$p_value,
+  pf(summary(lm_model)$fstatistic[1], summary(lm_model)$fstatistic[2], summary(lm_model)$fstatistic[3], lower.tail = FALSE),
+  check = FALSE)
+
+bench::mark(
+  Ftest_result$df1,
+  summary(lm_model)$fstatistic[2],
+  check = FALSE
+)
+
+bench::mark(
+   Ftest_result$df2,
+   summary(lm_model)$fstatistic[3],
+   check = FALSE
+)
+
+# Benchmarking custom Ttest function vs. lm()
+bench::mark(
+  Ttest_result[,1],
+  summary(lm_model)$coefficients[, 1]
+)
+
+bench::mark(
+  Ttest_result[,2],
+  summary(lm_model)$coefficients[, 2]
+)
+
+bench::mark(
+  Ttest_result[,3],
+  summary(lm_model)$coefficients[, 3]
+)
+
+bench::mark(
+  Ttest_result[,4],
+  summary(lm_model)$coefficients[, 4]
+)
+```
+
+```{r}
+package.skeleton("MLST",list = 
+c("RSE","Rsquared", "ADJRS", "Ftest", "Ttest"))
+```
+
+
+
