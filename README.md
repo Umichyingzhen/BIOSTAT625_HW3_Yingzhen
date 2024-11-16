@@ -131,4 +131,4 @@ browseVignettes("MLST")
 ## Help pages
 
 - Open the man folder in the main branch and download each .Rd file.
-- operate the files in R and click the 'preview' button of each file to see the help page.
+- Operate the files in R and click the 'preview' button of each file to see the help page.
