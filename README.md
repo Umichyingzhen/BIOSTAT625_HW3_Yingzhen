@@ -25,42 +25,6 @@ Sys.setenv(GITHUB_PAT = "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")
 devtools::install_github("Umichyingzhen/MLST")
 ```
 
-## Usage
-
-Run these functions to get the test results or statistics of interest
-
-```r
-library(MLST)
-
-# simulated dataset
-set.seed(123)
-simulate_data <- data.frame(
-  normal = rnorm(100, mean = 10, sd = 5),
-  X1 = rnorm(100),
-  X2 = rnorm(100),
-  X3 = rnorm(100)
-)
-
-# Set up the predictors and dependent variable
-Predictors <- as.matrix(simulate_data[, c("X1", "X2")])
-Y <- as.matrix(simulate_data[, "normal"])
-
-# Get the results
-RSE_result <- RSE(Y, Predictors, simulate_data)
-
-Rsquared_result <- Rsquared(Y, Predictors, simulate_data)
-print(Rsquared_result)
-
-ADJRS_result <- ADJRS(Y, Predictors, simulate_data)
-print(ADJRS_result)
-
-Ftest_result <- Ftest(Y, Predictors, simulate_data)
-print(Ftest_result)
-
-Ttest_result <- Ttest(Y, Predictors, simulate_data)
-print(Ttest_result)
-```
-
 ## Functions
 
 ### `RSE(Y, Predictors, data)`
@@ -110,6 +74,43 @@ print(Ttest_result)
   - `Predictors`: A matrix of predictor variables.
   - `data`: A data frame containing the variables in the model.
 - **Returns**: A matrix consists of each predictors of interest with their estimate, standard error, t-value, and p-value.
+
+
+## Usage
+
+Run these functions to get the test results or statistics of interest
+
+```r
+library(MLST)
+
+# simulated dataset
+set.seed(123)
+simulate_data <- data.frame(
+  normal = rnorm(100, mean = 10, sd = 5),
+  X1 = rnorm(100),
+  X2 = rnorm(100),
+  X3 = rnorm(100)
+)
+
+# Set up the predictors and dependent variable
+Predictors <- as.matrix(simulate_data[, c("X1", "X2")])
+Y <- as.matrix(simulate_data[, "normal"])
+
+# Get the results
+RSE_result <- RSE(Y, Predictors, simulate_data)
+
+Rsquared_result <- Rsquared(Y, Predictors, simulate_data)
+print(Rsquared_result)
+
+ADJRS_result <- ADJRS(Y, Predictors, simulate_data)
+print(ADJRS_result)
+
+Ftest_result <- Ftest(Y, Predictors, simulate_data)
+print(Ftest_result)
+
+Ttest_result <- Ttest(Y, Predictors, simulate_data)
+print(Ttest_result)
+```
 
 ## Tutorial
 
