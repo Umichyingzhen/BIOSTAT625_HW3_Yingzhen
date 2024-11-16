@@ -15,8 +15,8 @@
 To install the package, run the following in R:
 
 ```r
-# Install devtools if not already installed
-install.packages("devtools")
+# Install remotes if not already installed
+install.packages("remotes")
 
 # Access the package form github
 Sys.getenv("GITHUB_PAT")
