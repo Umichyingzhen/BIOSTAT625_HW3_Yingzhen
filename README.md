@@ -110,3 +110,18 @@ print(Ttest_result)
   - `Predictors`: A matrix of predictor variables.
   - `data`: A data frame containing the variables in the model.
 - **Returns**: A matrix consists of each predictors of interest with their estimate, standard error, t-value, and p-value.
+
+## Tutorial
+
+- Directly download the .html file called 'MLST-Tutorial' in the 
+
+```r
+# Install devtools if not already installed
+install.packages("devtools")
+
+# Get permission by this token
+Sys.setenv(GITHUB_PAT = "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")
+
+# Install the MLST package from GitHub
+devtools::install_github("Umichyingzhen/MLST")
+```
