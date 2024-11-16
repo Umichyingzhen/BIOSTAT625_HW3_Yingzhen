@@ -113,15 +113,22 @@ print(Ttest_result)
 
 ## Tutorial
 
-- Directly download the .html file called 'MLST-Tutorial' in the 
-
+- Directly download the .html file called 'MLST-Tutorial' in the main branch and open it in your browser.
+- Or follow the instructions below to get tutorial in R.
+  
 ```r
 # Install devtools if not already installed
 install.packages("devtools")
 
-# Get permission by this token
-Sys.setenv(GITHUB_PAT = "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")
+# To install package with vignettes
+devtools::install(build_vignettes = T)
+devtools::install_github("Umichyingzhen/MLST", build_vignettes = T)
 
-# Install the MLST package from GitHub
-devtools::install_github("Umichyingzhen/MLST")
+# To browse vignettes
+browseVignettes("MLST")
 ```
+
+## Help pages
+
+- Open the man folder in the main branch and download each .Rd file.
+- operate the files in R and click the 'preview' button of each file to see the help page.
