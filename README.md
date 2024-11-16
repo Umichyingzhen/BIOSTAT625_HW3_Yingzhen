@@ -18,7 +18,7 @@ To install the package, run the following in R:
 # Install remotes if not already installed
 install.packages("remotes")
 
-# Access the package form github
+# Authorization of package form github, replace "auth_token" with your own token
 Sys.getenv("GITHUB_PAT")
 Sys.setenv(GITHUB_PAT = "auth_token")
 nchar(remotes:::github_pat())
