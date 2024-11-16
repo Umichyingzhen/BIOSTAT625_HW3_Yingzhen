@@ -19,10 +19,12 @@ To install the package, run the following in R:
 install.packages("devtools")
 
 # Get permission by this token
-Sys.setenv(GITHUB_PAT = "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")
+Sys.getenv("GITHUB_PAT")
+Sys.setenv(GITHUB_PAT = auth_token)
+nchar(remotes:::github_pat())
 
 # Install the MLST package from GitHub
-devtools::install_github("Umichyingzhen/MLST")
+remotes::install_github("Umichyingzhen/MLST")
 ```
 
 ## Functions
